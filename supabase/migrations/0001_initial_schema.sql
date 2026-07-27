@@ -70,6 +70,24 @@ create table if not exists namespaces (
 create index if not exists namespaces_owner_idx on namespaces (owner_id);
 
 -- ----------------------------------------------------------------------------
+-- Helper: immutable array-to-text
+--
+-- A generated column may only call IMMUTABLE functions, and the built-in
+-- `array_to_string` is merely STABLE — Postgres cannot prove immutability for
+-- arbitrary element types whose output function may depend on settings.
+-- For `text[]` with a constant separator the result genuinely is deterministic,
+-- so this narrow wrapper can be declared IMMUTABLE safely.
+-- ----------------------------------------------------------------------------
+
+create or replace function memorydb_tags_to_text(tags text[])
+returns text
+language sql
+immutable
+strict
+parallel safe
+as $$ select array_to_string(tags, ' ') $$;
+
+-- ----------------------------------------------------------------------------
 -- Memories
 -- ----------------------------------------------------------------------------
 
@@ -119,7 +137,7 @@ create table if not exists memories (
   search_vector  tsvector generated always as (
     setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
     setweight(to_tsvector('english', coalesce(summary, '')), 'B') ||
-    setweight(to_tsvector('english', coalesce(array_to_string(tags, ' '), '')), 'B') ||
+    setweight(to_tsvector('english', coalesce(memorydb_tags_to_text(tags), '')), 'B') ||
     setweight(to_tsvector('english', coalesce(content, '')), 'C')
   ) stored
 );

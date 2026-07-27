@@ -85,6 +85,20 @@
   html {
     color-scheme: dark;
     -webkit-text-size-adjust: 100%;
+
+    /*
+     * The `.aurora` backdrop is `position: fixed; inset: 0`, so it sizes to the
+     * viewport rather than to the content box. On platforms with classic
+     * (space-reserving) scrollbars, the content box is narrower than the
+     * viewport by the scrollbar width, so a purely decorative background ends up
+     * a few pixels wider than the scrollable area and produces a phantom
+     * horizontal scrollbar.
+     *
+     * `clip` rather than `hidden`: `overflow: hidden` would turn <html> into a
+     * scroll container, which breaks the `position: sticky` sidebar and header.
+     * `clip` clips without creating one.
+     */
+    overflow-x: clip;
   }
 
   :root[data-theme='light'] {
