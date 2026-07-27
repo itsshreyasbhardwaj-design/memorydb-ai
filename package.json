@@ -1,0 +1,60 @@
+{
+  "name": "memorydb-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Production-ready long-term memory platform for AI agents — semantic, episodic, and knowledge-graph memory with hybrid retrieval",
+  "license": "MIT",
+  "homepage": "https://github.com/itsshreyasbhardwaj-design/memorydb-ai#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsshreyasbhardwaj-design/memorydb-ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/itsshreyasbhardwaj-design/memorydb-ai/issues"
+  },
+  "keywords": [
+    "ai-memory",
+    "vector-database",
+    "semantic-search",
+    "pgvector",
+    "knowledge-graph",
+    "llm",
+    "rag",
+    "agent-memory",
+    "long-term-memory",
+    "embeddings"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@11.17.0",
+  "scripts": {
+    "dev": "pnpm --filter @memorydb/web dev",
+    "build": "pnpm --filter \"./packages/*\" build && pnpm --filter @memorydb/web build",
+    "build:packages": "pnpm --filter \"./packages/*\" build",
+    "start": "pnpm --filter @memorydb/web start",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "bench": "vitest bench --run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.62.0",
+    "@types/node": "^22.18.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^3.2.4"
+  }
+}
