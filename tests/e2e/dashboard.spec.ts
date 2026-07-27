@@ -167,9 +167,36 @@ test.describe('responsive', () => {
 
     await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
 
-    const overflows = await page.evaluate(
-      () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-    );
-    expect(overflows).toBe(false);
+    // Report *which* element overflows, not just that something did. Font
+    // fallbacks and scrollbar behaviour differ between platforms, so a bare
+    // boolean here is close to undebuggable from a CI log.
+    const overflow = await page.evaluate(() => {
+      const root = document.documentElement;
+      const limit = root.clientWidth;
+      const offenders: string[] = [];
+
+      for (const element of Array.from(document.querySelectorAll<HTMLElement>('*'))) {
+        const rect = element.getBoundingClientRect();
+        if (rect.right > limit + 1) {
+          const styles = getComputedStyle(element);
+          offenders.push(
+            `<${element.tagName.toLowerCase()} class="${String(element.className).slice(0, 60)}"> ` +
+              `position=${styles.position} width=${Math.round(rect.width)} right=${Math.round(rect.right)}`,
+          );
+        }
+      }
+
+      return {
+        scrollWidth: root.scrollWidth,
+        clientWidth: limit,
+        offenders: offenders.slice(0, 8),
+      };
+    });
+
+    expect(
+      overflow.scrollWidth,
+      `Horizontal overflow: scrollWidth ${overflow.scrollWidth} > clientWidth ${overflow.clientWidth}.\n` +
+        `Offending elements:\n  ${overflow.offenders.join('\n  ') || '(none — the overflow comes from the root box itself)'}`,
+    ).toBeLessThanOrEqual(overflow.clientWidth + 1);
   });
 });
