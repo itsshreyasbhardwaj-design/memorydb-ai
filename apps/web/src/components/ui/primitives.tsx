@@ -53,9 +53,19 @@ Button.displayName = 'Button';
 
 /* -------------------------------- Card ----------------------------------- */
 
+/**
+ * `min-w-0` is load-bearing, not cosmetic.
+ *
+ * Grid and flex items default to `min-width: auto`, which refuses to shrink an
+ * item below its content's min-content width. A card containing a chart or a
+ * long unbroken string therefore forces its column wider than the available
+ * space and overflows the page — and because min-content width depends on font
+ * metrics, this reproduces on some platforms and not others. Resetting the
+ * automatic minimum lets a card always fit its slot.
+ */
 export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('glass rounded-[var(--radius-card)]', className)} {...props} />
+    <div ref={ref} className={cn('glass min-w-0 rounded-[var(--radius-card)]', className)} {...props} />
   ),
 );
 Card.displayName = 'Card';

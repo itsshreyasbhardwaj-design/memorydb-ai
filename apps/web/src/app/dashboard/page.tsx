@@ -116,12 +116,12 @@ export default function OverviewPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-28" />
           ))}
         </div>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid min-w-0 gap-4 lg:grid-cols-3">
           <Skeleton className="h-80 lg:col-span-2" />
           <Skeleton className="h-80" />
         </div>
@@ -164,7 +164,7 @@ export default function OverviewPage() {
         </div>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total memories"
           value={formatNumber(stats.total)}
@@ -194,7 +194,7 @@ export default function OverviewPage() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Memory growth</CardTitle>
@@ -216,7 +216,7 @@ export default function OverviewPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="flex-row items-center justify-between">
             <div>

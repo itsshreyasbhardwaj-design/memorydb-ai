@@ -90,7 +90,7 @@ export function GrowthChart({ growth, className }: { growth: MemoryStats['growth
   }
 
   return (
-    <div className={cn('h-56 w-full', className)}>
+    <div className={cn('h-56 w-full min-w-0', className)}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
           <defs>
@@ -156,7 +156,7 @@ export function TypeDistribution({ byType, className }: { byType: Record<string,
   const total = data.reduce((sum, entry) => sum + entry.count, 0);
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn('min-w-0 space-y-3', className)}>
       {/* A stacked bar reads proportion better than a pie at this scale. */}
       <div className="flex h-2 w-full overflow-hidden rounded-full bg-[var(--color-surface-overlay)]">
         {data.map((entry) => (
@@ -201,7 +201,7 @@ export function TopTagsChart({ tags, className }: { tags: Array<{ tag: string; c
   const data = tags.slice(0, 8);
 
   return (
-    <div className={cn('h-56 w-full', className)}>
+    <div className={cn('h-56 w-full min-w-0', className)}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" margin={{ top: 4, right: 12, left: 4, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} opacity={0.4} />
@@ -259,7 +259,7 @@ export function LatencyChart({
   ];
 
   return (
-    <div className={cn('h-40 w-full', className)}>
+    <div className={cn('h-40 w-full min-w-0', className)}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} opacity={0.4} />

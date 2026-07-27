@@ -144,7 +144,7 @@ export default function GraphPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-4">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-4">
         <Card className="overflow-hidden lg:col-span-3">
           <KnowledgeGraphView graph={graph} loading={loading} onSelectEntity={setSelectedId} />
         </Card>
