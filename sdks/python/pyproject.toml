@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "memorydb"
+version = "0.1.0"
+description = "Official Python SDK for MemoryDB AI — long-term memory for AI agents"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+authors = [{ name = "MemoryDB AI" }]
+keywords = [
+    "ai-memory", "vector-search", "semantic-search", "llm",
+    "agent-memory", "rag", "knowledge-graph", "embeddings",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+# No required dependencies — the SDK works on the standard library alone.
+dependencies = []
+
+[project.optional-dependencies]
+# httpx unlocks connection pooling, HTTP/2, and the asyncio client.
+async = ["httpx>=0.27"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24", "httpx>=0.27", "ruff>=0.6", "mypy>=1.11"]
+
+[project.urls]
+Homepage = "https://github.com/itsshreyasbhardwaj-design/memorydb-ai"
+Documentation = "https://github.com/itsshreyasbhardwaj-design/memorydb-ai#readme"
+Repository = "https://github.com/itsshreyasbhardwaj-design/memorydb-ai"
+Issues = "https://github.com/itsshreyasbhardwaj-design/memorydb-ai/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["memorydb"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_return_any = true
