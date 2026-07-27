@@ -22,8 +22,8 @@ from .errors import (
     MemoryDBError,
     NotFoundError,
     RateLimitError,
-    ValidationError,
     UnauthorizedError,
+    ValidationError,
 )
 from .models import (
     Citation,

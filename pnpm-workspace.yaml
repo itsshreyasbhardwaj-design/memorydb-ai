@@ -1,7 +1,15 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+
+# pnpm blocks postinstall scripts by default and fails the install until each
+# package with one is explicitly reviewed. These three are trusted, widely used
+# build tools that legitimately need to compile or fetch a native binary:
+#   esbuild        — fetches its platform-specific binary (used by Vitest)
+#   sharp          — native image processing, pulled in by Next.js
+#   unrs-resolver  — native module resolver used by ESLint
+# Leaving them unapproved is what made every CI job fail at the install step.
 allowBuilds:
-  esbuild: set this to true or false
-  sharp: set this to true or false
-  unrs-resolver: set this to true or false
+  esbuild: true
+  sharp: true
+  unrs-resolver: true

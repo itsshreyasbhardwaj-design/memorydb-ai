@@ -9,13 +9,15 @@ still performing well in production, where ``httpx`` is usually present.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import random
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Iterator, Optional, Sequence, Union
+from collections.abc import Iterator, Sequence
+from typing import Any
 
 from .errors import ConnectionError as MemoryDBConnectionError
 from .errors import MemoryDBError, RateLimitError, error_from_response
@@ -68,13 +70,13 @@ class _BaseClient:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         *,
         base_url: str = DEFAULT_BASE_URL,
-        namespace: Optional[str] = None,
+        namespace: str | None = None,
         timeout: float = 30.0,
         max_retries: int = 2,
-        headers: Optional[dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
@@ -83,7 +85,7 @@ class _BaseClient:
         self.max_retries = max_retries
         self._extra_headers = headers or {}
 
-    def _url(self, path: str, params: Optional[JsonDict] = None) -> str:
+    def _url(self, path: str, params: JsonDict | None = None) -> str:
         url = f"{self.base_url}/api/v1{path}"
         if params:
             cleaned = _clean(params)
@@ -91,7 +93,7 @@ class _BaseClient:
                 url = f"{url}?{urllib.parse.urlencode(cleaned)}"
         return url
 
-    def _headers(self, content_type: Optional[str] = None) -> dict[str, str]:
+    def _headers(self, content_type: str | None = None) -> dict[str, str]:
         headers = {"Accept": "application/json", **self._extra_headers}
         if content_type:
             headers["Content-Type"] = content_type
@@ -116,11 +118,11 @@ class MemoryDB(_BaseClient):
         >>> memory.retrieve(query="Ada preferences?").context
     """
 
-    def __init__(self, api_key: Optional[str] = None, **kwargs: Any) -> None:
+    def __init__(self, api_key: str | None = None, **kwargs: Any) -> None:
         super().__init__(api_key, **kwargs)
         self._client = httpx.Client(timeout=self.timeout) if _HAS_HTTPX else None
 
-    def __enter__(self) -> "MemoryDB":
+    def __enter__(self) -> MemoryDB:
         return self
 
     def __exit__(self, *_exc: Any) -> None:
@@ -138,20 +140,20 @@ class MemoryDB(_BaseClient):
         path: str,
         *,
         body: Any = None,
-        params: Optional[JsonDict] = None,
-        raw_body: Optional[Union[str, bytes]] = None,
-        content_type: Optional[str] = None,
+        params: JsonDict | None = None,
+        raw_body: str | bytes | None = None,
+        content_type: str | None = None,
     ) -> Any:
         url = self._url(path, params)
 
-        payload: Optional[bytes] = None
+        payload: bytes | None = None
         if raw_body is not None:
             payload = raw_body.encode("utf-8") if isinstance(raw_body, str) else raw_body
         elif body is not None:
             payload = json.dumps(body).encode("utf-8")
             content_type = "application/json"
 
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
 
         for attempt in range(self.max_retries + 1):
             if attempt > 0:
@@ -171,10 +173,8 @@ class MemoryDB(_BaseClient):
                 # Honour Retry-After when present, so a 429 backs off correctly.
                 retry_after = headers.get("retry-after")
                 if retry_after:
-                    try:
+                    with contextlib.suppress(ValueError):
                         time.sleep(min(30.0, float(retry_after)))
-                    except ValueError:
-                        pass
                 continue
 
             try:
@@ -195,8 +195,8 @@ class MemoryDB(_BaseClient):
         self,
         method: str,
         url: str,
-        payload: Optional[bytes],
-        content_type: Optional[str],
+        payload: bytes | None,
+        content_type: str | None,
     ) -> tuple[int, str, dict[str, str]]:
         headers = self._headers(content_type)
 
@@ -224,17 +224,17 @@ class MemoryDB(_BaseClient):
         *,
         type: str = "long_term",  # noqa: A002 - matches the API field name
         kind: str = "note",
-        title: Optional[str] = None,
-        summary: Optional[str] = None,
-        tags: Optional[Sequence[str]] = None,
-        metadata: Optional[JsonDict] = None,
-        importance: Optional[float] = None,
-        confidence: Optional[float] = None,
-        user_id: Optional[str] = None,
-        agent_id: Optional[str] = None,
-        session_id: Optional[str] = None,
-        source_id: Optional[str] = None,
-        ttl_seconds: Optional[int] = None,
+        title: str | None = None,
+        summary: str | None = None,
+        tags: Sequence[str] | None = None,
+        metadata: JsonDict | None = None,
+        importance: float | None = None,
+        confidence: float | None = None,
+        user_id: str | None = None,
+        agent_id: str | None = None,
+        session_id: str | None = None,
+        source_id: str | None = None,
+        ttl_seconds: int | None = None,
         deduplicate: bool = True,
         chunk: bool = False,
     ) -> Memory:
@@ -315,9 +315,9 @@ class MemoryDB(_BaseClient):
         offset: int = 0,
         sort_by: str = "createdAt",
         sort_dir: str = "desc",
-        type: Optional[Sequence[str]] = None,  # noqa: A002
-        tags: Optional[Sequence[str]] = None,
-        user_id: Optional[str] = None,
+        type: Sequence[str] | None = None,  # noqa: A002
+        tags: Sequence[str] | None = None,
+        user_id: str | None = None,
         include_archived: bool = False,
     ) -> Page[Memory]:
         data = self._request(
@@ -355,7 +355,7 @@ class MemoryDB(_BaseClient):
         mode: str = "hybrid",
         limit: int = 10,
         offset: int = 0,
-        filter: Optional[JsonDict] = None,  # noqa: A002
+        filter: JsonDict | None = None,  # noqa: A002
         min_score: float = 0.0,
         explain: bool = False,
         track_access: bool = False,
@@ -382,7 +382,7 @@ class MemoryDB(_BaseClient):
         limit: int = 10,
         token_budget: int = 4000,
         mode: str = "hybrid",
-        filter: Optional[JsonDict] = None,  # noqa: A002
+        filter: JsonDict | None = None,  # noqa: A002
         diversify: bool = True,
         min_score: float = 0.0,
     ) -> RetrieveResult:
@@ -409,12 +409,12 @@ class MemoryDB(_BaseClient):
     def graph(
         self,
         *,
-        types: Optional[Sequence[str]] = None,
-        root_ids: Optional[Sequence[str]] = None,
+        types: Sequence[str] | None = None,
+        root_ids: Sequence[str] | None = None,
         depth: int = 2,
         max_nodes: int = 150,
-        min_weight: Optional[float] = None,
-        search: Optional[str] = None,
+        min_weight: float | None = None,
+        search: str | None = None,
     ) -> KnowledgeGraph:
         data = self._request(
             "GET",
@@ -433,8 +433,8 @@ class MemoryDB(_BaseClient):
     def entities(
         self,
         *,
-        type: Optional[Sequence[str]] = None,  # noqa: A002
-        search: Optional[str] = None,
+        type: Sequence[str] | None = None,  # noqa: A002
+        search: str | None = None,
         limit: int = 50,
         offset: int = 0,
         sort_by: str = "mentionCount",
@@ -454,7 +454,7 @@ class MemoryDB(_BaseClient):
 
     # ------------------------------------------------------------- embeddings
 
-    def embed(self, texts: Union[str, Sequence[str]], *, similarity: bool = False) -> JsonDict:
+    def embed(self, texts: str | Sequence[str], *, similarity: bool = False) -> JsonDict:
         """Generate embeddings using the server's configured provider."""
         payload = texts if isinstance(texts, str) else list(texts)
         return self._request("POST", "/embeddings", body={"input": payload, "similarity": similarity})
@@ -483,12 +483,12 @@ class MemoryDB(_BaseClient):
 
     def import_data(
         self,
-        data: Union[str, bytes],
+        data: str | bytes,
         *,
         format: str = "json",  # noqa: A002
         deduplicate: bool = True,
         dry_run: bool = False,
-        tags: Optional[Sequence[str]] = None,
+        tags: Sequence[str] | None = None,
     ) -> ImportResult:
         """Import memories from JSON, JSONL, CSV, Markdown, text, or a ZIP archive."""
         content_types = {
@@ -515,7 +515,7 @@ class MemoryDB(_BaseClient):
         include_embeddings: bool = False,
         include_graph: bool = False,
         limit: int = 100_000,
-    ) -> Union[str, bytes]:
+    ) -> str | bytes:
         """Export the namespace. Returns ``bytes`` for ZIP, ``str`` otherwise."""
         url = self._url(
             "/batch/export",
@@ -540,7 +540,7 @@ class AsyncMemoryDB(_BaseClient):
         ...     await memory.store(content="Ada prefers dark mode.")
     """
 
-    def __init__(self, api_key: Optional[str] = None, **kwargs: Any) -> None:
+    def __init__(self, api_key: str | None = None, **kwargs: Any) -> None:
         if not _HAS_HTTPX:
             raise ImportError(
                 "AsyncMemoryDB requires httpx. Install it with: pip install 'memorydb[async]'"
@@ -548,7 +548,7 @@ class AsyncMemoryDB(_BaseClient):
         super().__init__(api_key, **kwargs)
         self._client = httpx.AsyncClient(timeout=self.timeout)
 
-    async def __aenter__(self) -> "AsyncMemoryDB":
+    async def __aenter__(self) -> AsyncMemoryDB:
         return self
 
     async def __aexit__(self, *_exc: Any) -> None:
@@ -563,7 +563,7 @@ class AsyncMemoryDB(_BaseClient):
         path: str,
         *,
         body: Any = None,
-        params: Optional[JsonDict] = None,
+        params: JsonDict | None = None,
     ) -> Any:
         import asyncio
 

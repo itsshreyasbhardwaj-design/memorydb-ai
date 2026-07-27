@@ -11,7 +11,7 @@ matters more here than strict validation.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 
 T = TypeVar("T")
 
@@ -34,28 +34,28 @@ class Memory:
     created_at: str
     updated_at: str
     content_hash: str
-    title: Optional[str] = None
-    summary: Optional[str] = None
-    user_id: Optional[str] = None
-    agent_id: Optional[str] = None
-    session_id: Optional[str] = None
-    source_id: Optional[str] = None
+    title: str | None = None
+    summary: str | None = None
+    user_id: str | None = None
+    agent_id: str | None = None
+    session_id: str | None = None
+    source_id: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     tags: list[str] = field(default_factory=list)
     importance: float = 0.5
     confidence: float = 1.0
-    embedding: Optional[list[float]] = None
-    embedding_model: Optional[str] = None
+    embedding: list[float] | None = None
+    embedding_model: str | None = None
     tokens: int = 0
     access_count: int = 0
-    last_accessed_at: Optional[str] = None
-    expires_at: Optional[str] = None
-    archived_at: Optional[str] = None
-    superseded_by: Optional[str] = None
+    last_accessed_at: str | None = None
+    expires_at: str | None = None
+    archived_at: str | None = None
+    superseded_by: str | None = None
     version: int = 1
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Memory":
+    def from_dict(cls, data: dict[str, Any]) -> Memory:
         return cls(
             id=data["id"],
             namespace=data["namespace"],
@@ -95,12 +95,12 @@ class Citation:
     memory_id: str
     snippet: str
     created_at: str
-    title: Optional[str] = None
-    source_id: Optional[str] = None
-    span: Optional[dict[str, int]] = None
+    title: str | None = None
+    source_id: str | None = None
+    span: dict[str, int] | None = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Citation":
+    def from_dict(cls, data: dict[str, Any]) -> Citation:
         return cls(
             memory_id=data["memoryId"],
             snippet=_get(data, "snippet", ""),
@@ -124,7 +124,7 @@ class ScoreBreakdown:
     final: float = 0.0
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ScoreBreakdown":
+    def from_dict(cls, data: dict[str, Any]) -> ScoreBreakdown:
         return cls(**{k: float(data.get(k, 0.0)) for k in cls.__dataclass_fields__})
 
 
@@ -134,10 +134,10 @@ class SearchHit:
     score: float
     rank: int
     citation: Citation
-    scores: Optional[ScoreBreakdown] = None
+    scores: ScoreBreakdown | None = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SearchHit":
+    def from_dict(cls, data: dict[str, Any]) -> SearchHit:
         return cls(
             memory=Memory.from_dict(data["memory"]),
             score=float(data["score"]),
@@ -162,7 +162,7 @@ class SearchResult:
         return len(self.hits)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SearchResult":
+    def from_dict(cls, data: dict[str, Any]) -> SearchResult:
         return cls(
             hits=[SearchHit.from_dict(hit) for hit in _get(data, "hits", [])],
             total=int(_get(data, "total", 0)),
@@ -183,7 +183,7 @@ class RetrieveResult(SearchResult):
     dropped: int = 0
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "RetrieveResult":
+    def from_dict(cls, data: dict[str, Any]) -> RetrieveResult:
         return cls(
             hits=[SearchHit.from_dict(hit) for hit in _get(data, "hits", [])],
             total=int(_get(data, "total", 0)),
@@ -206,7 +206,7 @@ class Entity:
     name: str
     normalized_name: str
     aliases: list[str] = field(default_factory=list)
-    description: Optional[str] = None
+    description: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     mention_count: int = 0
     salience: float = 0.0
@@ -215,7 +215,7 @@ class Entity:
     degree: int = 0
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Entity":
+    def from_dict(cls, data: dict[str, Any]) -> Entity:
         return cls(
             id=data["id"],
             namespace=data["namespace"],
@@ -246,7 +246,7 @@ class GraphEdge:
     memory_ids: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "GraphEdge":
+    def from_dict(cls, data: dict[str, Any]) -> GraphEdge:
         return cls(
             id=data["id"],
             source_id=data["sourceId"],
@@ -267,7 +267,7 @@ class KnowledgeGraph:
     stats: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "KnowledgeGraph":
+    def from_dict(cls, data: dict[str, Any]) -> KnowledgeGraph:
         return cls(
             nodes=[Entity.from_dict(n) for n in _get(data, "nodes", [])],
             edges=[GraphEdge.from_dict(e) for e in _get(data, "edges", [])],
@@ -292,11 +292,11 @@ class MemoryStats:
     storage_bytes: int
     namespace: str = ""
     embeddings: dict[str, Any] = field(default_factory=dict)
-    oldest_memory_at: Optional[str] = None
-    newest_memory_at: Optional[str] = None
+    oldest_memory_at: str | None = None
+    newest_memory_at: str | None = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "MemoryStats":
+    def from_dict(cls, data: dict[str, Any]) -> MemoryStats:
         return cls(
             total=int(_get(data, "total", 0)),
             active=int(_get(data, "active", 0)),
@@ -333,7 +333,7 @@ class ConsolidationReport:
     warnings: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ConsolidationReport":
+    def from_dict(cls, data: dict[str, Any]) -> ConsolidationReport:
         return cls(
             scanned=int(_get(data, "scanned", 0)),
             duplicates_merged=int(_get(data, "duplicatesMerged", 0)),
@@ -360,7 +360,7 @@ class ImportResult:
     took_ms: float = 0.0
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ImportResult":
+    def from_dict(cls, data: dict[str, Any]) -> ImportResult:
         return cls(
             imported=int(_get(data, "imported", 0)),
             deduplicated=int(_get(data, "deduplicated", 0)),
@@ -389,7 +389,7 @@ class Page(Generic[T]):
         return len(self.items)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any], item_factory) -> "Page[T]":
+    def from_dict(cls, data: dict[str, Any], item_factory) -> Page[T]:
         return cls(
             items=[item_factory(item) for item in _get(data, "items", [])],
             total=int(_get(data, "total", 0)),
