@@ -1,0 +1,57 @@
+name: Feature request
+description: Suggest a capability or improvement
+title: '[Feature]: '
+labels: ['enhancement', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the problem before the solution — it often leads somewhere better.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What are you trying to do that is currently hard or impossible?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would the API or behaviour look like?
+      render: typescript
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What have you tried, and why was it insufficient?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Core engine (retrieval / ranking)
+        - Core engine (storage)
+        - Consolidation
+        - Knowledge graph
+        - REST API
+        - Dashboard
+        - TypeScript SDK
+        - Python SDK
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I would be willing to implement this

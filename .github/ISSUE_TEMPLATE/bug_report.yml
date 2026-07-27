@@ -1,0 +1,79 @@
+name: Bug report
+description: Something is not working as documented
+title: '[Bug]: '
+labels: ['bug', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A failing test case is the most useful thing you can attach.
+
+        **Security issue?** Do not file it here — report it privately via
+        [Security Advisories](https://github.com/itsshreyasbhardwaj-design/memorydb-ai/security/advisories/new).
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you observe, and what did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal steps or code that reproduce the problem.
+      render: typescript
+      placeholder: |
+        const memory = await MemoryClient.create();
+        await memory.store({ content: '...' });
+        // observed: ...
+        // expected: ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Core engine (retrieval / ranking)
+        - Core engine (storage)
+        - Consolidation
+        - Knowledge graph
+        - REST API
+        - Dashboard
+        - TypeScript SDK
+        - Python SDK
+        - Documentation
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: '0.1.0 or a commit SHA'
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        Node: 22.11.0
+        OS: macOS 15.1
+        STORAGE_DRIVER: postgres
+        EMBEDDING_PROVIDER: local
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error output
+      description: Include the requestId if you have one — it correlates to server-side logs.
+      render: shell

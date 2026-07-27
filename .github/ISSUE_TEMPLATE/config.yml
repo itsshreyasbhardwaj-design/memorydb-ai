@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/itsshreyasbhardwaj-design/memorydb-ai/discussions
+    about: Ask questions and share what you are building.
+  - name: Security vulnerability
+    url: https://github.com/itsshreyasbhardwaj-design/memorydb-ai/security/advisories/new
+    about: Report vulnerabilities privately — never in a public issue.
