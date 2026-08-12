@@ -37,3 +37,11 @@ sdks/python/dist/
 !.vscode/extensions.json
 tests/e2e/.auth/
 .claude/
+
+# Security hardening: secret-shaped files, none currently present
+*.pem
+*.key
+credentials*.json
+service-account*.json
+*.sqlite
+*.db
